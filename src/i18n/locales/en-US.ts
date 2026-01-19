@@ -236,6 +236,32 @@ export default {
     viewDetails: 'View Details',
   },
 
+  // Schedule
+  schedule: {
+    title: 'Scheduled Tasks',
+    button: 'Schedule',
+    addPolicy: 'Add Schedule',
+    defaultPolicyName: 'Schedule',
+    policyName: 'Name',
+    noPolicies: 'No schedules',
+    noPoliciesHint: 'Add a schedule to run tasks automatically',
+    repeatDays: 'Repeat Days',
+    startTime: 'Start Time',
+    selectDays: 'Select days...',
+    selectHours: 'Select hours...',
+    noWeekdays: 'No days selected',
+    noHours: 'No hours selected',
+    everyday: 'Every day',
+    everyHour: 'Every hour',
+    all: 'All',
+    hoursSelected: 'hours selected',
+    timeZoneHint: 'Using local timezone',
+    multiSelect: 'multi-select',
+    enable: 'Enable schedule',
+    disable: 'Disable schedule',
+    hint: 'Scheduled tasks will run automatically at set times',
+  },
+
   // Error messages
   errors: {
     loadInterfaceFailed: 'Failed to load interface.json',

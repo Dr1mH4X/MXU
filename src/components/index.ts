@@ -12,5 +12,6 @@ export { DeviceSelector } from './DeviceSelector';
 export { ResourceSelector } from './ResourceSelector';
 export { ConnectionPanel } from './ConnectionPanel';
 export { DashboardView } from './DashboardView';
+export { SchedulePanel } from './SchedulePanel';
 export { ContextMenu, useContextMenu, getIcon } from './ContextMenu';
 export type { MenuItem, ContextMenuState } from './ContextMenu';

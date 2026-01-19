@@ -236,6 +236,32 @@ export default {
     viewDetails: '查看详情',
   },
 
+  // 定时执行
+  schedule: {
+    title: '定时执行',
+    button: '定时',
+    addPolicy: '添加定时策略',
+    defaultPolicyName: '策略',
+    policyName: '策略名称',
+    noPolicies: '暂无定时策略',
+    noPoliciesHint: '添加策略以自动执行任务',
+    repeatDays: '重复日期',
+    startTime: '开始时间',
+    selectDays: '选择日期...',
+    selectHours: '选择时间...',
+    noWeekdays: '未选择日期',
+    noHours: '未选择时间',
+    everyday: '每天',
+    everyHour: '每小时',
+    all: '全部',
+    hoursSelected: '个时间点',
+    timeZoneHint: '使用本地时区 (UTC+8)',
+    multiSelect: '可多选',
+    enable: '启用策略',
+    disable: '禁用策略',
+    hint: '定时策略将在设定时间自动开始任务',
+  },
+
   // 错误消息
   errors: {
     loadInterfaceFailed: '加载 interface.json 失败',

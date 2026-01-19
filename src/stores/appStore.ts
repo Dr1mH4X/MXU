@@ -337,6 +337,7 @@ export const useAppStore = create<AppState>()(
               enabled: t.enabled,
               optionValues: t.optionValues,
             })),
+            schedulePolicies: instanceToClose.schedulePolicies,
           };
           // 添加到列表头部，并限制最大条目数
           newRecentlyClosed = [closedRecord, ...state.recentlyClosed].slice(0, MAX_RECENTLY_CLOSED);
@@ -703,6 +704,7 @@ export const useAppStore = create<AppState>()(
             expanded: false,
           })),
           isRunning: false,
+          schedulePolicies: inst.schedulePolicies,
         }));
         
         // 恢复选中的控制器和资源状态
@@ -895,6 +897,7 @@ export const useAppStore = create<AppState>()(
             expanded: false,
           })),
           isRunning: false,
+          schedulePolicies: closedInstance.schedulePolicies,
         };
         
         // 恢复选中的控制器和资源状态
@@ -947,6 +950,7 @@ function generateConfig(): MxuConfig {
         enabled: t.enabled,
         optionValues: t.optionValues,
       })),
+      schedulePolicies: inst.schedulePolicies,
     })),
     settings: {
       theme: state.theme,

@@ -163,6 +163,15 @@ export interface SavedDeviceInfo {
   playcoverAddress?: string;
 }
 
+// 定时执行策略
+export interface SchedulePolicy {
+  id: string;
+  name: string;             // 策略名称
+  enabled: boolean;         // 是否启用
+  weekdays: number[];       // 重复日期 (0-6, 0=周日)
+  hours: number[];          // 开始时间 (0-23)
+}
+
 // 多开实例状态
 export interface Instance {
   id: string;
@@ -176,6 +185,8 @@ export interface Instance {
   savedDevice?: SavedDeviceInfo;
   selectedTasks: SelectedTask[];
   isRunning: boolean;
+  // 定时执行策略列表
+  schedulePolicies?: SchedulePolicy[];
 }
 
 // 翻译文件类型

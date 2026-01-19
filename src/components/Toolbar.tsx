@@ -9,12 +9,14 @@ import {
   Play,
   StopCircle,
   Loader2,
+  Clock,
 } from 'lucide-react';
 import { useAppStore } from '@/stores/appStore';
 import { maaService } from '@/services/maaService';
 import clsx from 'clsx';
 import { loggers } from '@/utils/logger';
 import type { TaskConfig, AgentConfig } from '@/types/maa';
+import { SchedulePanel } from './SchedulePanel';
 
 const log = loggers.task;
 
@@ -39,6 +41,7 @@ export function Toolbar({ showAddPanel, onToggleAddPanel }: ToolbarProps) {
   } = useAppStore();
 
   const [isStarting, setIsStarting] = useState(false);
+  const [showSchedulePanel, setShowSchedulePanel] = useState(false);
   
   // 任务队列状态（用于回调处理）
   const [pendingTaskIds, setPendingTaskIds] = useState<number[]>([]);
@@ -405,37 +408,69 @@ export function Toolbar({ showAddPanel, onToggleAddPanel }: ToolbarProps) {
         </button>
       </div>
 
-      {/* 右侧执行按钮 */}
-      <button
-        onClick={handleStartStop}
-        disabled={isDisabled || isStarting}
-        className={clsx(
-          'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-          instance?.isRunning
-            ? 'bg-error hover:bg-error/90 text-white'
-            : isDisabled || isStarting
-            ? 'bg-bg-active text-text-muted cursor-not-allowed'
-            : 'bg-accent hover:bg-accent-hover text-white'
+      {/* 右侧执行按钮组 */}
+      <div className="flex items-center gap-2 relative">
+        {/* 定时执行按钮 */}
+        <button
+          onClick={() => setShowSchedulePanel(!showSchedulePanel)}
+          className={clsx(
+            'flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm transition-colors',
+            showSchedulePanel
+              ? 'bg-accent text-white'
+              : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary',
+            // 有启用的定时策略时显示指示点
+            instance?.schedulePolicies?.some(p => p.enabled) && !showSchedulePanel && 'relative'
+          )}
+          title={t('schedule.title')}
+        >
+          <Clock className="w-4 h-4" />
+          <span className="hidden sm:inline">{t('schedule.button')}</span>
+          {/* 启用指示点 */}
+          {instance?.schedulePolicies?.some(p => p.enabled) && !showSchedulePanel && (
+            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-accent rounded-full" />
+          )}
+        </button>
+
+        {/* 定时执行面板 */}
+        {showSchedulePanel && instance && (
+          <SchedulePanel
+            instanceId={instance.id}
+            onClose={() => setShowSchedulePanel(false)}
+          />
         )}
-        title={!canRun && !instance?.isRunning ? '请先连接设备并加载资源' : undefined}
-      >
-        {isStarting ? (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin" />
-            <span>启动中...</span>
-          </>
-        ) : instance?.isRunning ? (
-          <>
-            <StopCircle className="w-4 h-4" />
-            <span>{t('taskList.stopTasks')}</span>
-          </>
-        ) : (
-          <>
-            <Play className="w-4 h-4" />
-            <span>{t('taskList.startTasks')}</span>
-          </>
-        )}
-      </button>
+
+        {/* 开始/停止按钮 */}
+        <button
+          onClick={handleStartStop}
+          disabled={isDisabled || isStarting}
+          className={clsx(
+            'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+            instance?.isRunning
+              ? 'bg-error hover:bg-error/90 text-white'
+              : isDisabled || isStarting
+              ? 'bg-bg-active text-text-muted cursor-not-allowed'
+              : 'bg-accent hover:bg-accent-hover text-white'
+          )}
+          title={!canRun && !instance?.isRunning ? '请先连接设备并加载资源' : undefined}
+        >
+          {isStarting ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>启动中...</span>
+            </>
+          ) : instance?.isRunning ? (
+            <>
+              <StopCircle className="w-4 h-4" />
+              <span>{t('taskList.stopTasks')}</span>
+            </>
+          ) : (
+            <>
+              <Play className="w-4 h-4" />
+              <span>{t('taskList.startTasks')}</span>
+            </>
+          )}
+        </button>
+      </div>
     </div>
   );
 }

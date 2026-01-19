@@ -2,6 +2,15 @@
 
 import type { OptionValue } from './interface';
 
+// 定时执行策略
+export interface SchedulePolicy {
+  id: string;
+  name: string;             // 策略名称
+  enabled: boolean;         // 是否启用
+  weekdays: number[];       // 重复日期 (0-6, 0=周日)
+  hours: number[];          // 开始时间 (0-23)
+}
+
 // 保存的任务配置
 export interface SavedTask {
   id: string;
@@ -33,6 +42,8 @@ export interface SavedInstance {
   // 保存的设备信息，用于自动重连
   savedDevice?: SavedDeviceInfo;
   tasks: SavedTask[];
+  // 定时执行策略列表
+  schedulePolicies?: SchedulePolicy[];
 }
 
 // 窗口大小配置
@@ -52,6 +63,7 @@ export interface RecentlyClosedInstance {
   resourceName?: string;
   savedDevice?: SavedDeviceInfo;
   tasks: SavedTask[];       // 保存的任务配置
+  schedulePolicies?: SchedulePolicy[];  // 定时执行策略
 }
 
 // MirrorChyan 更新频道
