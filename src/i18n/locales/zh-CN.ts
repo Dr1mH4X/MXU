@@ -165,6 +165,30 @@ export default {
     copyAll: '复制全部',
     expand: '展开上方面板',
     collapse: '折叠上方面板',
+    // 日志消息
+    messages: {
+      // 连接消息
+      connecting: '正在连接设备 {{device}}...',
+      connected: '设备连接成功: {{device}}',
+      connectFailed: '设备连接失败: {{device}}',
+      // 资源加载消息
+      loadingResource: '正在加载资源: {{name}}',
+      resourceLoaded: '资源加载成功: {{name}}',
+      resourceFailed: '资源加载失败: {{name}}',
+      // 任务消息
+      taskStarting: '任务开始: {{name}}',
+      taskSucceeded: '任务完成: {{name}}',
+      taskFailed: '任务失败: {{name}}',
+      stopTask: '停止任务',
+      // 定时任务消息
+      scheduleStarting: '定时执行开始 [{{policy}}] {{time}}',
+      // Agent 消息
+      agentStarting: 'Agent 正在启动...',
+      agentStarted: 'Agent 已启动',
+      agentConnected: 'Agent 已连接',
+      agentDisconnected: 'Agent 已断开',
+      agentFailed: 'Agent 启动失败',
+    },
   },
 
   // 添加任务面板

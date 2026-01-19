@@ -39,12 +39,13 @@ export function DeviceSelector({ instanceId, controllerDef, onConnectionChange }
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 从全局 store 获取缓存的设备列表
+  // 从全局 store 获取缓存的设备列表和 ID 映射
   const { 
     cachedAdbDevices, 
     cachedWin32Windows, 
     setCachedAdbDevices, 
-    setCachedWin32Windows 
+    setCachedWin32Windows,
+    registerCtrlIdName,
   } = useAppStore();
 
   // 选中的设备（本地状态）
@@ -232,6 +233,19 @@ export function DeviceSelector({ instanceId, controllerDef, onConnectionChange }
       const agentPath = `${basePath}/MaaAgentBinary`;
       const ctrlId = await maaService.connectController(instanceId, config, agentPath);
       
+      // 注册 ctrl_id 与设备名的映射
+      let deviceName = '';
+      if (controllerType === 'Adb' && selectedAdbDevice) {
+        deviceName = selectedAdbDevice.name || selectedAdbDevice.address;
+      } else if ((controllerType === 'Win32' || controllerType === 'Gamepad') && selectedWindow) {
+        deviceName = selectedWindow.window_name || selectedWindow.class_name;
+      } else if (controllerType === 'PlayCover') {
+        deviceName = playcoverAddress;
+      }
+      if (deviceName) {
+        registerCtrlIdName(ctrlId, deviceName);
+      }
+      
       // 记录等待中的 ctrl_id，后续由回调处理完成状态
       setPendingCtrlId(ctrlId);
     } catch (err) {
@@ -295,6 +309,9 @@ export function DeviceSelector({ instanceId, controllerDef, onConnectionChange }
       const agentPath = `${basePath}/MaaAgentBinary`;
       const ctrlId = await maaService.connectController(instanceId, config, agentPath);
       
+      // 注册 ctrl_id 与设备名的映射
+      registerCtrlIdName(ctrlId, device.name || device.address);
+      
       // 记录等待中的 ctrl_id，后续由回调处理完成状态
       setPendingCtrlId(ctrlId);
     } catch (err) {
@@ -341,6 +358,9 @@ export function DeviceSelector({ instanceId, controllerDef, onConnectionChange }
       
       const agentPath = `${basePath}/MaaAgentBinary`;
       const ctrlId = await maaService.connectController(instanceId, config, agentPath);
+      
+      // 注册 ctrl_id 与设备名的映射
+      registerCtrlIdName(ctrlId, win.window_name || win.class_name);
       
       // 记录等待中的 ctrl_id，后续由回调处理完成状态
       setPendingCtrlId(ctrlId);

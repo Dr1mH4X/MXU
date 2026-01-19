@@ -65,6 +65,13 @@ export function Toolbar({ showAddPanel, onToggleAddPanel }: ToolbarProps) {
     scheduleExecutions,
     setScheduleExecution,
     clearScheduleExecution,
+    // 回调 ID 映射
+    registerCtrlIdName,
+    registerResIdName,
+    registerTaskIdName,
+    registerEntryTaskName,
+    // 日志
+    addLog,
   } = useAppStore();
 
   const [isStarting, setIsStarting] = useState(false);
@@ -296,6 +303,19 @@ export function Toolbar({ showAddPanel, onToggleAddPanel }: ToolbarProps) {
       const ctrlId = await maaService.connectController(instanceId, config, agentPath);
       pendingCtrlIdRef.current = ctrlId;
       
+      // 注册 ctrl_id 与设备名的映射
+      let deviceName = '';
+      if (savedDevice?.adbDeviceName) {
+        deviceName = savedDevice.adbDeviceName;
+      } else if (savedDevice?.windowName) {
+        deviceName = savedDevice.windowName;
+      } else if (savedDevice?.playcoverAddress) {
+        deviceName = savedDevice.playcoverAddress;
+      }
+      if (deviceName) {
+        registerCtrlIdName(ctrlId, deviceName);
+      }
+      
       // 等待连接回调
       return new Promise<boolean>((resolve) => {
         const timeout = setTimeout(() => {
@@ -344,6 +364,12 @@ export function Toolbar({ showAddPanel, onToggleAddPanel }: ToolbarProps) {
       
       const resIds = await maaService.loadResource(instanceId, resourcePaths);
       pendingResIdsRef.current = new Set(resIds);
+      
+      // 注册 res_id 与资源名的映射
+      const resourceName = currentResource.label || currentResource.name;
+      resIds.forEach(resId => {
+        registerResIdName(resId, resourceName);
+      });
       
       // 等待资源加载回调
       return new Promise<boolean>((resolve) => {
@@ -500,6 +526,19 @@ export function Toolbar({ showAddPanel, onToggleAddPanel }: ToolbarProps) {
         const agentPath = `${basePath}/MaaAgentBinary`;
         const ctrlId = await maaService.connectController(targetId, config, agentPath);
         
+        // 注册 ctrl_id 与设备名的映射
+        let deviceName = '';
+        if (savedDevice?.adbDeviceName) {
+          deviceName = savedDevice.adbDeviceName;
+        } else if (savedDevice?.windowName) {
+          deviceName = savedDevice.windowName;
+        } else if (savedDevice?.playcoverAddress) {
+          deviceName = savedDevice.playcoverAddress;
+        }
+        if (deviceName) {
+          registerCtrlIdName(ctrlId, deviceName);
+        }
+        
         // 等待连接完成
         const connectResult = await new Promise<boolean>((resolve) => {
           const timeout = setTimeout(() => resolve(false), 30000);
@@ -532,6 +571,12 @@ export function Toolbar({ showAddPanel, onToggleAddPanel }: ToolbarProps) {
         
         const resIds = await maaService.loadResource(targetId, resourcePaths);
         
+        // 注册 res_id 与资源名的映射
+        const resourceName = resource.label || resource.name;
+        resIds.forEach(resId => {
+          registerResIdName(resId, resourceName);
+        });
+        
         // 等待资源加载完成
         const loadResult = await new Promise<boolean>((resolve) => {
           const timeout = setTimeout(() => resolve(false), 60000);
@@ -561,7 +606,7 @@ export function Toolbar({ showAddPanel, onToggleAddPanel }: ToolbarProps) {
       
       log.info(`实例 ${targetInstance.name}: 开始执行任务, 数量:`, enabledTasks.length);
       
-      // 构建任务配置列表
+      // 构建任务配置列表，同时预注册 entry -> taskName 映射（解决时序问题）
       const taskConfigs: TaskConfig[] = [];
       for (const selectedTask of enabledTasks) {
         const taskDef = projectInterface?.task.find(t => t.name === selectedTask.taskName);
@@ -570,6 +615,9 @@ export function Toolbar({ showAddPanel, onToggleAddPanel }: ToolbarProps) {
           entry: taskDef.entry,
           pipeline_override: generateTaskPipelineOverride(selectedTask, projectInterface),
         });
+        // 预注册 entry -> taskName 映射，确保回调时能找到任务名
+        const taskDisplayName = selectedTask.customName || selectedTask.taskName;
+        registerEntryTaskName(taskDef.entry, taskDisplayName);
       }
       
       if (taskConfigs.length === 0) {
@@ -613,10 +661,13 @@ export function Toolbar({ showAddPanel, onToggleAddPanel }: ToolbarProps) {
       const enabledTaskIds = enabledTasks.map(t => t.id);
       setAllTasksRunStatus(targetId, enabledTaskIds, 'pending');
       
-      // 记录映射关系
+      // 记录映射关系，并注册 task_id 与任务名的映射用于日志显示
       taskIds.forEach((maaTaskId, index) => {
         if (enabledTasks[index]) {
           registerMaaTaskMapping(targetId, maaTaskId, enabledTasks[index].id);
+          // 注册 task_id 与任务名的映射（使用自定义名称或任务名）
+          const taskDisplayName = enabledTasks[index].customName || enabledTasks[index].taskName;
+          registerTaskIdName(maaTaskId, taskDisplayName);
         }
       });
       
@@ -685,6 +736,16 @@ export function Toolbar({ showAddPanel, onToggleAddPanel }: ToolbarProps) {
         if (matchesWeekday && matchesHour) {
           log.info(`定时策略命中: 实例 "${inst.name}", 策略 "${policy.name}"`);
           
+          // 添加定时执行开始日志
+          const timeStr = `${currentHour.toString().padStart(2, '0')}:00`;
+          addLog(inst.id, {
+            type: 'info',
+            message: t('logs.messages.scheduleStarting', { 
+              policy: policy.name,
+              time: timeStr
+            }),
+          });
+          
           // 启动任务（复用启动函数）
           const started = await startTasksForInstance(inst, policy.name);
           if (started) {
@@ -698,7 +759,7 @@ export function Toolbar({ showAddPanel, onToggleAddPanel }: ToolbarProps) {
         }
       }
     }
-  }, [instances, startTasksForInstance]);
+  }, [instances, startTasksForInstance, addLog, t]);
   
   // 定时任务检查：每个整小时检查一次
   useEffect(() => {
@@ -793,7 +854,7 @@ export function Toolbar({ showAddPanel, onToggleAddPanel }: ToolbarProps) {
         const enabledTasks = tasks.filter(t => t.enabled);
         log.info('开始执行任务, 数量:', enabledTasks.length);
 
-        // 构建任务配置列表
+        // 构建任务配置列表，同时预注册 entry -> taskName 映射（解决时序问题）
         const taskConfigs: TaskConfig[] = [];
         for (const selectedTask of enabledTasks) {
           const taskDef = projectInterface?.task.find(t => t.name === selectedTask.taskName);
@@ -803,6 +864,9 @@ export function Toolbar({ showAddPanel, onToggleAddPanel }: ToolbarProps) {
             entry: taskDef.entry,
             pipeline_override: generateTaskPipelineOverride(selectedTask, projectInterface),
           });
+          // 预注册 entry -> taskName 映射，确保回调时能找到任务名
+          const taskDisplayName = selectedTask.customName || selectedTask.taskName;
+          registerEntryTaskName(taskDef.entry, taskDisplayName);
         }
 
         if (taskConfigs.length === 0) {
@@ -839,10 +903,13 @@ export function Toolbar({ showAddPanel, onToggleAddPanel }: ToolbarProps) {
         const enabledTaskIds = enabledTasks.map(t => t.id);
         setAllTasksRunStatus(instance.id, enabledTaskIds, 'pending');
         
-        // 记录 maaTaskId -> selectedTaskId 的映射关系
+        // 记录 maaTaskId -> selectedTaskId 的映射关系，并注册 task_id 与任务名的映射
         taskIds.forEach((maaTaskId, index) => {
           if (enabledTasks[index]) {
             registerMaaTaskMapping(instance.id, maaTaskId, enabledTasks[index].id);
+            // 注册 task_id 与任务名的映射（使用自定义名称或任务名）
+            const taskDisplayName = enabledTasks[index].customName || enabledTasks[index].taskName;
+            registerTaskIdName(maaTaskId, taskDisplayName);
           }
         });
         

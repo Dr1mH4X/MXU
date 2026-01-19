@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 use tauri::State;
 
 use crate::maa_ffi::{
-    from_cstr, get_event_callback, get_maa_version, init_maa_library, to_cstring,
+    emit_agent_output, from_cstr, get_event_callback, get_maa_version, init_maa_library, to_cstring,
     MaaAgentClient, MaaController, MaaImageBuffer, MaaLibrary, MaaResource, MaaTasker,
     MaaToolkitAdbDeviceList, MaaToolkitDesktopWindowList,
     MAA_CTRL_OPTION_SCREENSHOT_TARGET_SHORT_SIDE, MAA_GAMEPAD_TYPE_DUALSHOCK4,
@@ -1289,6 +1289,7 @@ pub async fn maa_start_tasks(
         // 在单独线程中读取 stdout（使用有损转换处理非UTF-8输出）
         if let Some(stdout) = child.stdout.take() {
             let log_file_clone = Arc::clone(&log_file);
+            let instance_id_clone = instance_id.clone();
             thread::spawn(move || {
                 let mut reader = BufReader::new(stdout);
                 let mut buffer = Vec::new();
@@ -1314,6 +1315,8 @@ pub async fn maa_start_tasks(
                             }
                             // 同时输出到控制台
                             log::info!(target: "agent", "[stdout] {}", line);
+                            // 发送事件到前端
+                            emit_agent_output(&instance_id_clone, "stdout", &line);
                         }
                         Err(e) => {
                             log::error!(target: "agent", "[stdout error] {}", e);
@@ -1327,6 +1330,7 @@ pub async fn maa_start_tasks(
         // 在单独线程中读取 stderr（使用有损转换处理非UTF-8输出）
         if let Some(stderr) = child.stderr.take() {
             let log_file_clone = Arc::clone(&log_file);
+            let instance_id_clone = instance_id.clone();
             thread::spawn(move || {
                 let mut reader = BufReader::new(stderr);
                 let mut buffer = Vec::new();
@@ -1351,6 +1355,8 @@ pub async fn maa_start_tasks(
                             }
                             // 同时输出到控制台
                             log::warn!(target: "agent", "[stderr] {}", line);
+                            // 发送事件到前端
+                            emit_agent_output(&instance_id_clone, "stderr", &line);
                         }
                         Err(e) => {
                             log::error!(target: "agent", "[stderr error] {}", e);

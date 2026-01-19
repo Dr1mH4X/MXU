@@ -1,23 +1,24 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Trash2, Copy, ChevronUp, ChevronDown } from 'lucide-react';
 import clsx from 'clsx';
-import { useAppStore } from '@/stores/appStore';
+import { useAppStore, type LogType } from '@/stores/appStore';
 import { ContextMenu, useContextMenu, type MenuItem } from './ContextMenu';
-
-interface LogEntry {
-  id: string;
-  timestamp: Date;
-  type: 'info' | 'success' | 'warning' | 'error';
-  message: string;
-}
 
 export function LogsPanel() {
   const { t } = useTranslation();
-  const [logs, setLogs] = useState<LogEntry[]>([]);
   const logsEndRef = useRef<HTMLDivElement>(null);
-  const { sidePanelExpanded, toggleSidePanelExpanded } = useAppStore();
+  const { 
+    sidePanelExpanded, 
+    toggleSidePanelExpanded,
+    activeInstanceId,
+    instanceLogs,
+    clearLogs,
+  } = useAppStore();
   const { state: menuState, show: showMenu, hide: hideMenu } = useContextMenu();
+
+  // 获取当前实例的日志
+  const logs = activeInstanceId ? (instanceLogs[activeInstanceId] || []) : [];
 
   useEffect(() => {
     if (logsEndRef.current) {
@@ -25,18 +26,20 @@ export function LogsPanel() {
     }
   }, [logs]);
 
-  const handleClear = () => {
-    setLogs([]);
-  };
+  const handleClear = useCallback(() => {
+    if (activeInstanceId) {
+      clearLogs(activeInstanceId);
+    }
+  }, [activeInstanceId, clearLogs]);
 
-  const handleCopyAll = () => {
+  const handleCopyAll = useCallback(() => {
     const text = logs
       .map((log) => `[${log.timestamp.toLocaleTimeString()}] ${log.message}`)
       .join('\n');
     navigator.clipboard.writeText(text);
-  };
+  }, [logs]);
 
-  const getLogColor = (type: LogEntry['type']) => {
+  const getLogColor = (type: LogType) => {
     switch (type) {
       case 'success':
         return 'text-success';
@@ -44,6 +47,10 @@ export function LogsPanel() {
         return 'text-warning';
       case 'error':
         return 'text-error';
+      case 'agent':
+        return 'text-purple-500 dark:text-purple-400';
+      case 'focus':
+        return 'text-accent';
       default:
         return 'text-text-secondary';
     }
@@ -83,6 +90,18 @@ export function LogsPanel() {
     },
     [t, logs.length, sidePanelExpanded, handleCopyAll, handleClear, toggleSidePanelExpanded, showMenu]
   );
+
+  // 根据日志类型获取前缀标签
+  const getLogPrefix = (type: LogType) => {
+    switch (type) {
+      case 'agent':
+        return '[Agent] ';
+      case 'focus':
+        return '';
+      default:
+        return '';
+    }
+  };
 
   return (
     <div className="flex-1 flex flex-col bg-bg-secondary rounded-lg border border-border overflow-hidden">
@@ -159,7 +178,10 @@ export function LogsPanel() {
                 <span className="text-text-muted flex-shrink-0">
                   [{log.timestamp.toLocaleTimeString()}]
                 </span>
-                <span className="break-all">{log.message}</span>
+                <span className="break-all">
+                  {getLogPrefix(log.type)}
+                  {log.message}
+                </span>
               </div>
             ))}
             <div ref={logsEndRef} />

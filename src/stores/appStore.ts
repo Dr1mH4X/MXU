@@ -12,6 +12,17 @@ import { saveConfig } from '@/services/configService';
 /** 单个任务的运行状态 */
 export type TaskRunStatus = 'idle' | 'pending' | 'running' | 'succeeded' | 'failed';
 
+/** 日志条目类型 */
+export type LogType = 'info' | 'success' | 'warning' | 'error' | 'agent' | 'focus';
+
+/** 日志条目 */
+export interface LogEntry {
+  id: string;
+  timestamp: Date;
+  type: LogType;
+  message: string;
+}
+
 export type Theme = 'light' | 'dark';
 export type Language = 'zh-CN' | 'en-US';
 export type PageView = 'main' | 'settings';
@@ -202,6 +213,25 @@ interface AppState {
   scheduleExecutions: Record<string, ScheduleExecutionInfo>;
   setScheduleExecution: (instanceId: string, info: ScheduleExecutionInfo | null) => void;
   clearScheduleExecution: (instanceId: string) => void;
+  
+  // 日志管理
+  instanceLogs: Record<string, LogEntry[]>;
+  addLog: (instanceId: string, log: Omit<LogEntry, 'id' | 'timestamp'>) => void;
+  clearLogs: (instanceId: string) => void;
+  
+  // 回调 ID 与名称的映射（用于日志显示）
+  ctrlIdToName: Record<number, string>;
+  resIdToName: Record<number, string>;
+  taskIdToName: Record<number, string>;
+  entryToTaskName: Record<string, string>;  // entry -> 任务显示名（解决时序问题）
+  registerCtrlIdName: (ctrlId: number, name: string) => void;
+  registerResIdName: (resId: number, name: string) => void;
+  registerTaskIdName: (taskId: number, name: string) => void;
+  registerEntryTaskName: (entry: string, name: string) => void;
+  getCtrlName: (ctrlId: number) => string | undefined;
+  getResName: (resId: number) => string | undefined;
+  getTaskName: (taskId: number) => string | undefined;
+  getTaskNameByEntry: (entry: string) => string | undefined;
 }
 
 // 定时执行状态信息
@@ -1163,6 +1193,60 @@ export const useAppStore = create<AppState>()(
           Object.entries(state.scheduleExecutions).filter(([id]) => id !== instanceId)
         ),
       })),
+      
+      // 日志管理
+      instanceLogs: {},
+      
+      addLog: (instanceId, log) => set((state) => {
+        const logs = state.instanceLogs[instanceId] || [];
+        const newLog: LogEntry = {
+          id: generateId(),
+          timestamp: new Date(),
+          ...log,
+        };
+        // 限制每个实例最多保留 500 条日志
+        const updatedLogs = [...logs, newLog].slice(-500);
+        return {
+          instanceLogs: {
+            ...state.instanceLogs,
+            [instanceId]: updatedLogs,
+          },
+        };
+      }),
+      
+      clearLogs: (instanceId) => set((state) => ({
+        instanceLogs: {
+          ...state.instanceLogs,
+          [instanceId]: [],
+        },
+      })),
+      
+      // 回调 ID 与名称的映射
+      ctrlIdToName: {},
+      resIdToName: {},
+      taskIdToName: {},
+      entryToTaskName: {},
+      
+      registerCtrlIdName: (ctrlId, name) => set((state) => ({
+        ctrlIdToName: { ...state.ctrlIdToName, [ctrlId]: name },
+      })),
+      
+      registerResIdName: (resId, name) => set((state) => ({
+        resIdToName: { ...state.resIdToName, [resId]: name },
+      })),
+      
+      registerTaskIdName: (taskId, name) => set((state) => ({
+        taskIdToName: { ...state.taskIdToName, [taskId]: name },
+      })),
+      
+      registerEntryTaskName: (entry, name) => set((state) => ({
+        entryToTaskName: { ...state.entryToTaskName, [entry]: name },
+      })),
+      
+      getCtrlName: (ctrlId) => get().ctrlIdToName[ctrlId],
+      getResName: (resId) => get().resIdToName[resId],
+      getTaskName: (taskId) => get().taskIdToName[taskId],
+      getTaskNameByEntry: (entry) => get().entryToTaskName[entry],
     })
   )
 );

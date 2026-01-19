@@ -516,6 +516,31 @@ pub struct MaaCallbackEvent {
     pub details: String,
 }
 
+/// Agent 输出事件载荷
+#[derive(Clone, Serialize)]
+pub struct AgentOutputEvent {
+    /// 实例 ID
+    pub instance_id: String,
+    /// 输出流类型: "stdout" 或 "stderr"
+    pub stream: String,
+    /// 输出内容
+    pub line: String,
+}
+
+/// 发送 Agent 输出事件到前端
+pub fn emit_agent_output(instance_id: &str, stream: &str, line: &str) {
+    if let Ok(guard) = APP_HANDLE.lock() {
+        if let Some(handle) = guard.as_ref() {
+            let event = AgentOutputEvent {
+                instance_id: instance_id.to_string(),
+                stream: stream.to_string(),
+                line: line.to_string(),
+            };
+            let _ = handle.emit("maa-agent-output", event);
+        }
+    }
+}
+
 /// MaaFramework 回调处理函数
 /// 由 MaaFramework 在子线程中调用，将消息转发到前端
 extern "C" fn maa_event_callback(

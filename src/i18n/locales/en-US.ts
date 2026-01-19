@@ -165,6 +165,30 @@ export default {
     copyAll: 'Copy All',
     expand: 'Expand panels above',
     collapse: 'Collapse panels above',
+    // Log messages
+    messages: {
+      // Connection messages
+      connecting: 'Connecting to device {{device}}...',
+      connected: 'Device connected: {{device}}',
+      connectFailed: 'Device connection failed: {{device}}',
+      // Resource loading messages
+      loadingResource: 'Loading resource: {{name}}',
+      resourceLoaded: 'Resource loaded: {{name}}',
+      resourceFailed: 'Resource load failed: {{name}}',
+      // Task messages
+      taskStarting: 'Task started: {{name}}',
+      taskSucceeded: 'Task completed: {{name}}',
+      taskFailed: 'Task failed: {{name}}',
+      stopTask: 'Stop Task',
+      // Schedule messages
+      scheduleStarting: 'Scheduled execution started [{{policy}}] {{time}}',
+      // Agent messages
+      agentStarting: 'Agent starting...',
+      agentStarted: 'Agent started',
+      agentConnected: 'Agent connected',
+      agentDisconnected: 'Agent disconnected',
+      agentFailed: 'Agent start failed',
+    },
   },
 
   // Add task panel

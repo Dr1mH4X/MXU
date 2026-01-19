@@ -32,7 +32,7 @@ export function ResourceSelector({
   isRunning = false,
 }: ResourceSelectorProps) {
   const { t } = useTranslation();
-  const { basePath, language, interfaceTranslations } = useAppStore();
+  const { basePath, language, interfaceTranslations, registerResIdName } = useAppStore();
 
   const [isLoading, setIsLoading] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -135,6 +135,12 @@ export function ResourceSelector({
       const resourcePaths = resource.path.map(p => `${basePath}/${p}`);
 
       const resIds = await maaService.loadResource(instanceId, resourcePaths);
+      
+      // 注册 res_id 与资源名的映射用于日志显示
+      const resourceDisplayName = resolveI18nText(resource.label, translations) || resource.name;
+      resIds.forEach(resId => {
+        registerResIdName(resId, resourceDisplayName);
+      });
       
       // 记录已加载的资源名称
       lastLoadedResourceRef.current = resource.name;

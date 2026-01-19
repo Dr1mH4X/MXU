@@ -16,6 +16,7 @@ import { autoLoadInterface, loadConfig, loadConfigFromStorage, resolveI18nText, 
 import { Loader2, AlertCircle, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { loggers } from '@/utils/logger';
+import { useMaaCallbackLogger, useMaaAgentLogger } from '@/utils/useMaaCallbackLogger';
 
 const log = loggers.app;
 
@@ -104,6 +105,10 @@ function App() {
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   const { t } = useTranslation();
+  
+  // 启用 MAA 回调日志监听
+  useMaaCallbackLogger();
+  useMaaAgentLogger();
 
   const {
     setProjectInterface,

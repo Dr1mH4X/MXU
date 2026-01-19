@@ -49,6 +49,8 @@ export function ConnectionPanel() {
     setInstanceSavedDevice,
     connectionPanelExpanded,
     setConnectionPanelExpanded,
+    registerCtrlIdName,
+    registerResIdName,
   } = useAppStore();
   
   // 获取当前活动实例
@@ -437,6 +439,19 @@ export function ConnectionPanel() {
       const agentPath = `${basePath}/MaaAgentBinary`;
       const ctrlId = await maaService.connectController(instanceId, config, agentPath);
       
+      // 注册 ctrl_id 与设备名的映射，用于日志显示
+      let deviceName = '';
+      if (controllerType === 'Adb' && selectedAdbDevice) {
+        deviceName = selectedAdbDevice.name || selectedAdbDevice.address;
+      } else if ((controllerType === 'Win32' || controllerType === 'Gamepad') && selectedWindow) {
+        deviceName = selectedWindow.window_name || selectedWindow.class_name;
+      } else if (controllerType === 'PlayCover') {
+        deviceName = playcoverAddress;
+      }
+      if (deviceName) {
+        registerCtrlIdName(ctrlId, deviceName);
+      }
+      
       // 记录等待中的 ctrl_id，后续由回调处理完成状态
       setPendingCtrlId(ctrlId);
     } catch (err) {
@@ -460,6 +475,12 @@ export function ConnectionPanel() {
         return `${basePath}/${cleanPath}`;
       });
       const resIds = await maaService.loadResource(instanceId, resourcePaths);
+      
+      // 注册 res_id 与资源名的映射，用于日志显示
+      const resourceDisplayName = resolveI18nText(resource.label, translations) || resource.name;
+      resIds.forEach(resId => {
+        registerResIdName(resId, resourceDisplayName);
+      });
       
       // 记录已加载的资源名称
       lastLoadedResourceRef.current = resource.name;
@@ -599,6 +620,9 @@ export function ConnectionPanel() {
       const agentPath = `${basePath}/MaaAgentBinary`;
       const ctrlId = await maaService.connectController(instanceId, config, agentPath);
       
+      // 注册 ctrl_id 与设备名的映射
+      registerCtrlIdName(ctrlId, device.name || device.address);
+      
       // 记录等待中的 ctrl_id，后续由回调处理完成状态
       setPendingCtrlId(ctrlId);
     } catch (err) {
@@ -653,6 +677,9 @@ export function ConnectionPanel() {
       
       const agentPath = `${basePath}/MaaAgentBinary`;
       const ctrlId = await maaService.connectController(instanceId, config, agentPath);
+      
+      // 注册 ctrl_id 与设备名的映射
+      registerCtrlIdName(ctrlId, win.window_name || win.class_name);
       
       // 记录等待中的 ctrl_id，后续由回调处理完成状态
       setPendingCtrlId(ctrlId);
