@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Download, ChevronRight, Maximize2 } from 'lucide-react';
-import { useAppStore, type UpdateInfo } from '@/stores/appStore';
+import { useAppStore } from '@/stores/appStore';
 import { simpleMarkdownToHtml } from '@/services/contentResolver';
 import clsx from 'clsx';
 

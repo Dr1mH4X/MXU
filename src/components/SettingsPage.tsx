@@ -18,7 +18,6 @@ import {
   EyeOff,
   ListChecks,
 } from 'lucide-react';
-import type { UpdateChannel } from '@/types/config';
 import { checkUpdate, openMirrorChyanWebsite } from '@/services/updateService';
 import { defaultWindowSize } from '@/types/config';
 import { useAppStore } from '@/stores/appStore';

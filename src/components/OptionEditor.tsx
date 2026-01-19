@@ -161,7 +161,6 @@ export function OptionEditor({ instanceId, taskId, optionKey, value, depth = 0 }
   const getSelectedCase = (): CaseItem | undefined => {
     if (optionDef.type === 'switch') {
       const isChecked = value?.type === 'switch' ? value.value : false;
-      const caseName = isChecked ? 'Yes' : 'No';
       // switch 类型需要匹配 Yes/yes/Y/y 或 No/no/N/n
       return optionDef.cases?.find((c) => {
         if (isChecked) {
