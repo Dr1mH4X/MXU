@@ -645,35 +645,38 @@ export function useResolvedContent(
     const resolvedI18n = resolveI18nText(content, translations);
     const type = detectContentType(resolvedI18n);
     
-    // 如果是直接文本，直接转换 HTML 并返回
-    if (type === 'text') {
-      const html = markdownToHtml(resolvedI18n);
-      setResult({ content: resolvedI18n, html, loading: false, type, loaded: false });
-      return;
-    }
-    
-    // 需要异步加载
+    // 统一使用异步处理，以支持直接文本中的本地图片
     setResult(prev => ({ ...prev, loading: true, type }));
     
     let cancelled = false;
     
     (async () => {
-      const resolved = await resolveDescriptionContent(content, { translations, basePath });
+      let finalContent = resolvedI18n;
+      let loaded = false;
+      let error: string | undefined;
+      
+      // 如果是文件或 URL 类型，需要先加载内容
+      if (type !== 'text') {
+        const resolved = await resolveDescriptionContent(content, { translations, basePath });
+        finalContent = resolved.content;
+        loaded = resolved.loaded;
+        error = resolved.error;
+      }
       
       if (cancelled) return;
       
-      // 异步加载本地图片的 HTML
-      const html = await markdownToHtmlWithLocalImages(resolved.content, basePath);
+      // 异步加载本地图片的 HTML（统一处理，支持直接文本中的 Markdown 图片）
+      const html = await markdownToHtmlWithLocalImages(finalContent, basePath);
       
       if (cancelled) return;
       
       setResult({
-        content: resolved.content,
+        content: finalContent,
         html,
         loading: false,
-        type: resolved.type,
-        loaded: resolved.loaded,
-        error: resolved.error,
+        type,
+        loaded,
+        error,
       });
     })();
     
