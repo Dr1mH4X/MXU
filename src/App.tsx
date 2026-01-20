@@ -102,7 +102,6 @@ async function getWindowSize(): Promise<{ width: number; height: number } | null
 }
 
 function App() {
-  const [showAddPanel, setShowAddPanel] = useState(false);
   const [loadingState, setLoadingState] = useState<LoadingState>('loading');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
@@ -137,6 +136,8 @@ function App() {
     updateInfo,
     downloadStatus,
     setShowUpdateDialog,
+    showAddTaskPanel,
+    setShowAddTaskPanel,
   } = useAppStore();
 
   const initialized = useRef(false);
@@ -640,12 +641,12 @@ function App() {
             <TaskList />
 
             {/* 添加任务面板 */}
-            {showAddPanel && <AddTaskPanel />}
+            {showAddTaskPanel && <AddTaskPanel />}
 
             {/* 底部工具栏 */}
             <Toolbar
-              showAddPanel={showAddPanel}
-              onToggleAddPanel={() => setShowAddPanel(!showAddPanel)}
+              showAddPanel={showAddTaskPanel}
+              onToggleAddPanel={() => setShowAddTaskPanel(!showAddTaskPanel)}
             />
           </div>
 
