@@ -67,7 +67,7 @@ const MIN_WINDOW_WIDTH = 800;
 const MIN_WINDOW_HEIGHT = 500;
 
 // 左侧面板最小宽度（确保工具栏按钮文字不换行）
-const MIN_LEFT_PANEL_WIDTH = 618;
+const MIN_LEFT_PANEL_WIDTH = 530;
 
 /**
  * 验证窗口尺寸是否有效
@@ -813,8 +813,13 @@ function App() {
           {/* 右侧信息面板 */}
           {!rightPanelCollapsed && (
             <div
-              className="shrink-0 flex flex-col gap-3 p-3 bg-bg-primary overflow-y-auto overflow-x-hidden border-l border-transparent min-w-[240px] max-w-[50vw]"
-              style={{ width: rightPanelWidth }}
+              className="flex flex-col gap-3 p-3 bg-bg-primary overflow-y-auto overflow-x-hidden border-l border-transparent"
+              style={{
+                width: rightPanelWidth,
+                minWidth: 240,
+                // 允许收缩但保持最小宽度，确保窗口缩小时不被裁切
+                flexShrink: 1,
+              }}
             >
               {/* 连接设置和实时截图（可折叠） */}
               {sidePanelExpanded && (
