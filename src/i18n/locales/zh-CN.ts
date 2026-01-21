@@ -293,7 +293,7 @@ export default {
 
   // MirrorChyan 更新
   mirrorChyan: {
-    title: '软件更新',
+    title: '更新',
     channel: '更新频道',
     channelStable: '正式版',
     channelBeta: '公测版',

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { 
   ArrowLeft, 
@@ -24,7 +24,6 @@ import {
   Trash2,
   Paintbrush,
   Info,
-  Monitor,
 } from 'lucide-react';
 import { checkAndPrepareDownload, openMirrorChyanWebsite, downloadUpdate, getUpdateSavePath, cancelDownload, MIRRORCHYAN_ERROR_CODES } from '@/services/updateService';
 import { clearAllCache, getCacheStats } from '@/services/cacheService';
@@ -446,6 +445,69 @@ export function SettingsPage() {
     );
   };
 
+  // 目录索引配置
+  const tocItems = useMemo(() => {
+    const items = [
+      { id: 'appearance', icon: Paintbrush, labelKey: 'settings.appearance' },
+    ];
+    // 仅在配置了 mirrorchyan_rid 时显示软件更新
+    if (projectInterface?.mirrorchyan_rid) {
+      items.push({ id: 'update', icon: Download, labelKey: 'mirrorChyan.title' });
+    }
+    items.push(
+      { id: 'debug', icon: Bug, labelKey: 'debug.title' },
+      { id: 'about', icon: Info, labelKey: 'about.title' },
+    );
+    return items;
+  }, [projectInterface?.mirrorchyan_rid]);
+
+  // 当前高亮的 section
+  const [activeSection, setActiveSection] = useState('appearance');
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // 滚动到指定 section
+  const scrollToSection = useCallback((sectionId: string) => {
+    const element = document.getElementById(`section-${sectionId}`);
+    if (element && scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const elementTop = element.offsetTop - container.offsetTop;
+      container.scrollTo({
+        top: elementTop - 16, // 留出一点顶部间距
+        behavior: 'smooth',
+      });
+    }
+  }, []);
+
+  // 监听滚动，更新当前高亮的 section
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const sections = tocItems.map(item => ({
+        id: item.id,
+        element: document.getElementById(`section-${item.id}`),
+      })).filter(s => s.element);
+
+      // 找到当前视口中的 section
+      const scrollTop = container.scrollTop;
+      
+      for (let i = sections.length - 1; i >= 0; i--) {
+        const section = sections[i];
+        if (section.element) {
+          const sectionTop = section.element.offsetTop - container.offsetTop;
+          if (scrollTop >= sectionTop - 100) {
+            setActiveSection(section.id);
+            break;
+          }
+        }
+      }
+    };
+
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [tocItems]);
+
   return (
     <div className="h-full flex flex-col bg-bg-primary">
       {/* 顶部导航 */}
@@ -461,11 +523,36 @@ export function SettingsPage() {
         </h1>
       </div>
 
-      {/* 设置内容 */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-2xl mx-auto p-6 space-y-8">
-          {/* 外观设置 */}
-          <section className="space-y-4">
+      {/* 主体区域：左侧目录 + 右侧内容 */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* 左侧固定目录索引 */}
+        <nav className="w-40 flex-shrink-0 bg-bg-secondary border-r border-border p-4 space-y-1">
+          {tocItems.map(item => {
+            const Icon = item.icon;
+            const isActive = activeSection === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => scrollToSection(item.id)}
+                className={clsx(
+                  'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left',
+                  isActive
+                    ? 'bg-accent text-white'
+                    : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'
+                )}
+              >
+                <Icon className="w-4 h-4 flex-shrink-0" />
+                <span className="truncate">{t(item.labelKey)}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* 右侧设置内容 */}
+        <div className="flex-1 overflow-y-auto" ref={scrollContainerRef}>
+          <div className="max-w-2xl mx-auto p-6 space-y-8">
+            {/* 外观设置 */}
+          <section id="section-appearance" className="space-y-4 scroll-mt-4">
             <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wider flex items-center gap-2">
               <Paintbrush className="w-4 h-4" />
               {t('settings.appearance')}
@@ -568,7 +655,7 @@ export function SettingsPage() {
 
           {/* MirrorChyan 更新设置 */}
           {projectInterface?.mirrorchyan_rid && (
-            <section className="space-y-4">
+            <section id="section-update" className="space-y-4 scroll-mt-4">
               <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wider flex items-center gap-2">
                 <Download className="w-4 h-4" />
                 {t('mirrorChyan.title')}
@@ -798,7 +885,7 @@ export function SettingsPage() {
           )}
 
           {/* 调试 */}
-          <section className="space-y-4">
+          <section id="section-debug" className="space-y-4 scroll-mt-4">
             <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wider flex items-center gap-2">
               <Bug className="w-4 h-4" />
               {t('debug.title')}
@@ -864,7 +951,7 @@ export function SettingsPage() {
           </section>
 
           {/* 关于 */}
-          <section className="space-y-4">
+          <section id="section-about" className="space-y-4 scroll-mt-4">
             <h2 className="text-sm font-semibold text-text-primary uppercase tracking-wider flex items-center gap-2">
               <Info className="w-4 h-4" />
               {t('about.title')}
@@ -978,6 +1065,7 @@ export function SettingsPage() {
               </div>
             </div>
           </section>
+          </div>
         </div>
       </div>
     </div>
