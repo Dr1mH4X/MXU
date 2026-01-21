@@ -541,7 +541,7 @@ export function SettingsPage() {
   }, [tocItems]);
 
   return (
-    <div className="h-full flex flex-col bg-bg-primary">
+    <div className="flex-1 min-h-0 flex flex-col bg-bg-primary">
       {/* 顶部导航 */}
       <div className="flex items-center gap-3 px-4 py-3 bg-bg-secondary border-b border-border">
         <button
