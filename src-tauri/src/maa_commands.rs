@@ -1415,6 +1415,24 @@ pub async fn maa_start_tasks(
         // 启动子进程，捕获 stdout 和 stderr
         // 设置 PYTHONIOENCODING 强制 Python 以 UTF-8 编码输出，避免 Windows 系统代码页乱码
         debug!("Spawning child process...");
+
+        // Windows 平台使用 CREATE_NO_WINDOW 标志避免弹出控制台窗口
+        #[cfg(windows)]
+        let spawn_result = {
+            use std::os::windows::process::CommandExt;
+            const CREATE_NO_WINDOW: u32 = 0x08000000;
+            Command::new(&exec_path)
+                .args(&args)
+                .current_dir(&cwd)
+                .env("PYTHONIOENCODING", "utf-8")
+                .env("PYTHONUTF8", "1")
+                .stdout(Stdio::piped())
+                .stderr(Stdio::piped())
+                .creation_flags(CREATE_NO_WINDOW)
+                .spawn()
+        };
+
+        #[cfg(not(windows))]
         let spawn_result = Command::new(&exec_path)
             .args(&args)
             .current_dir(&cwd)
