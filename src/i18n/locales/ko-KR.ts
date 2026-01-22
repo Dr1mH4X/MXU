@@ -47,6 +47,7 @@ export default {
     themeSystem: '시스템 설정',
     showOptionPreview: '옵션 미리보기 표시',
     showOptionPreviewHint: '작업 목록에 옵션의 빠른 미리보기를 표시합니다',
+    openLogDir: '로그 폴더 열기',
   },
 
   // 작업 목록

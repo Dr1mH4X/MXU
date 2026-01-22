@@ -47,6 +47,7 @@ export default {
     themeSystem: '跟随系统',
     showOptionPreview: '显示选项预览',
     showOptionPreviewHint: '在任务列表中显示选项的快捷预览信息',
+    openLogDir: '打开日志目录',
   },
 
   // 任务列表

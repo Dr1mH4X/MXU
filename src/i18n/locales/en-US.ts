@@ -47,6 +47,7 @@ export default {
     themeSystem: 'System',
     showOptionPreview: 'Show Option Preview',
     showOptionPreviewHint: 'Display quick preview of options in the task list',
+    openLogDir: 'Open Log Directory',
   },
 
   // Task list

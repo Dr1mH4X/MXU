@@ -47,6 +47,7 @@ export default {
     themeSystem: 'システムに従う',
     showOptionPreview: 'オプションプレビューを表示',
     showOptionPreviewHint: 'タスクリストにオプションのクイックプレビューを表示します',
+    openLogDir: 'ログフォルダを開く',
   },
 
   // タスクリスト
