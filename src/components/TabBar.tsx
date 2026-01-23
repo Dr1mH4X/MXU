@@ -380,9 +380,9 @@ export function TabBar() {
                       onClick={(e) => handleCloseTab(e, instance.id)}
                       disabled={instances.length <= 1}
                       className={clsx(
-                        'p-0.5 rounded transition-opacity',
+                        'p-0.5 rounded transition-all',
                         instances.length > 1
-                          ? 'opacity-0 group-hover:opacity-100 hover:bg-bg-active'
+                          ? 'opacity-0 group-hover:opacity-100 text-text-muted hover:bg-error/10 hover:text-error'
                           : 'opacity-30 cursor-not-allowed',
                       )}
                       title={instances.length > 1 ? t('titleBar.closeTab') : undefined}

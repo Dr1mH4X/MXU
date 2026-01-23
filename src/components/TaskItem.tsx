@@ -761,8 +761,8 @@ export function TaskItem({ instanceId, task }: TaskItemProps) {
           <button
             onClick={() => removeTaskFromInstance(instanceId, task.id)}
             className={clsx(
-              'p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity',
-              'hover:bg-bg-active',
+              'p-1 rounded opacity-0 group-hover:opacity-100 transition-all',
+              'text-text-muted hover:bg-error/10 hover:text-error',
             )}
             title={t('taskItem.remove')}
           >
