@@ -250,19 +250,23 @@ export function ScreenshotPanel() {
     }
   }, [instanceId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 面板折叠或被隐藏时停止流（但不改变 store 中的状态，只停止实际的流循环）
+  // 连接成功后自动开始实时截图（仅当面板可见且未开启时）
+  const connectionStatus = instanceId ? instanceConnectionStatus[instanceId] : undefined;
+
+  // 面板折叠时暂停截图，展开时自动开始（如果已连接）
   useEffect(() => {
     if (!screenshotPanelExpanded || !sidePanelExpanded) {
+      // 折叠时暂停截图流，同步更新状态和图标
       streamingRef.current = false;
-    } else if (isStreaming && instanceId) {
-      // 面板重新展开时，如果状态是开启的，恢复流
+      setIsStreaming(false);
+    } else if (connectionStatus === 'Connected' && instanceId) {
+      // 展开且已连接时，自动开始截图
       streamingRef.current = true;
+      setIsStreaming(true);
+      setError(null);
       streamLoop();
     }
   }, [screenshotPanelExpanded, sidePanelExpanded]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // 连接成功后自动开始实时截图（仅当面板可见且未开启时）
-  const connectionStatus = instanceId ? instanceConnectionStatus[instanceId] : undefined;
   const prevConnectionStatusRef = useRef<typeof connectionStatus>(undefined);
   const hasAutoStartedRef = useRef(false);
 
