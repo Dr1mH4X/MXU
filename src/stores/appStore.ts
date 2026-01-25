@@ -242,6 +242,10 @@ interface AppState {
   devMode: boolean;
   setDevMode: (devMode: boolean) => void;
 
+  // 新用户引导
+  onboardingCompleted: boolean;
+  setOnboardingCompleted: (completed: boolean) => void;
+
   // 更新检查状态
   updateInfo: UpdateInfo | null;
   updateCheckLoading: boolean;
@@ -1081,6 +1085,7 @@ export const useAppStore = create<AppState>()(
         screenshotFrameRate: config.settings.screenshotFrameRate ?? defaultScreenshotFrameRate,
         welcomeShownHash: config.settings.welcomeShownHash ?? '',
         devMode: config.settings.devMode ?? false,
+        onboardingCompleted: config.settings.onboardingCompleted ?? false,
         recentlyClosed: config.recentlyClosed || [],
         // 记录新增任务，并在有新增时自动展开添加任务面板
         newTaskNames: detectedNewTaskNames,
@@ -1322,6 +1327,10 @@ export const useAppStore = create<AppState>()(
     // 开发模式
     devMode: false,
     setDevMode: (devMode) => set({ devMode }),
+
+    // 新用户引导
+    onboardingCompleted: false,
+    setOnboardingCompleted: (completed) => set({ onboardingCompleted: completed }),
 
     // 更新检查状态
     updateInfo: null,
@@ -1662,6 +1671,7 @@ function generateConfig(): MxuConfig {
       screenshotFrameRate: state.screenshotFrameRate,
       welcomeShownHash: state.welcomeShownHash,
       devMode: state.devMode,
+      onboardingCompleted: state.onboardingCompleted,
     },
     recentlyClosed: state.recentlyClosed,
     // 保存当前 interface.json 的任务名列表快照，用于下次加载时检测新增任务
@@ -1705,6 +1715,7 @@ useAppStore.subscribe(
     screenshotFrameRate: state.screenshotFrameRate,
     welcomeShownHash: state.welcomeShownHash,
     devMode: state.devMode,
+    onboardingCompleted: state.onboardingCompleted,
     recentlyClosed: state.recentlyClosed,
     newTaskNames: state.newTaskNames,
   }),

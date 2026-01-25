@@ -14,7 +14,10 @@ import {
   DashboardView,
   InstallConfirmModal,
   VCRedistModal,
+  OnboardingOverlay,
+  BadPathModal,
 } from '@/components';
+import type { BadPathType } from '@/components';
 import {
   autoLoadInterface,
   loadConfig,
@@ -134,6 +137,8 @@ function App() {
     null,
   );
   const [showVCRedistModal, setShowVCRedistModal] = useState(false);
+  const [showBadPathModal, setShowBadPathModal] = useState(false);
+  const [badPathType, setBadPathType] = useState<BadPathType>('root');
 
   // 页面过渡状态
   const [isSettingsExiting, setIsSettingsExiting] = useState(false);
@@ -541,8 +546,28 @@ function App() {
     const { theme: initialTheme, accentColor: initialAccent } = useAppStore.getState();
     applyTheme(initialTheme, initialAccent);
 
-    // 自动加载 interface
-    loadInterface();
+    // 先检查程序路径，有问题就弹窗不继续加载
+    const initApp = async () => {
+      if (isTauri()) {
+        try {
+          const pathIssue = await invoke<string | null>('check_exe_path');
+          if (pathIssue) {
+            log.warn('检测到程序路径问题:', pathIssue);
+            setBadPathType(pathIssue as BadPathType);
+            setShowBadPathModal(true);
+            // 路径有问题就不继续加载了
+            return;
+          }
+        } catch (err) {
+          log.warn('检查程序路径失败:', err);
+        }
+      }
+
+      // 路径没问题，继续加载 interface
+      loadInterface();
+    };
+
+    initApp();
   }, []);
 
   // 检查 VC++ 运行库缺失（在加载完成后检查）
@@ -559,6 +584,7 @@ function App() {
       log.warn('检查 VC++ 运行库缺失失败:', err);
     }
   }, []);
+
 
   // 主题变化时更新 DOM
   useEffect(() => {
@@ -762,6 +788,10 @@ function App() {
     return (
       <div className="h-full flex flex-col bg-bg-primary">
         <TitleBar />
+
+        {/* 程序路径问题提示模态框 - 在加载阶段也需要能弹出 */}
+        <BadPathModal show={showBadPathModal} type={badPathType} />
+
         <div className="flex-1 flex flex-col items-center justify-center p-8">
           <div className="max-w-md w-full space-y-6 text-center">
             {/* Logo/标题 */}
@@ -770,8 +800,8 @@ function App() {
               <p className="text-text-secondary">{displaySubtitle}</p>
             </div>
 
-            {/* 加载状态 */}
-            {loadingState === 'loading' && (
+            {/* 加载状态 - 路径检查中或正常加载中 */}
+            {loadingState === 'loading' && !showBadPathModal && (
               <div className="flex flex-col items-center gap-3 py-8">
                 <Loader2 className="w-8 h-8 animate-spin text-accent" />
                 <p className="text-text-secondary">正在加载 interface.json...</p>
@@ -810,11 +840,17 @@ function App() {
       {/* 欢迎弹窗 */}
       <WelcomeDialog />
 
+      {/* 新用户引导覆盖层 - 仅在右侧面板可见时显示 */}
+      {!rightPanelCollapsed && !dashboardView && <OnboardingOverlay />}
+
       {/* 安装确认模态框 */}
       <InstallConfirmModal />
 
       {/* VC++ 运行库缺失提示模态框 */}
       <VCRedistModal show={showVCRedistModal} onClose={() => setShowVCRedistModal(false)} />
+
+      {/* 程序路径问题提示模态框 */}
+      <BadPathModal show={showBadPathModal} type={badPathType} />
 
       {/* MaaFramework 版本警告弹窗 */}
       {versionWarning && (

@@ -68,7 +68,9 @@ export default {
     // 自動接続関連
     autoConnect: {
       searching: 'デバイスを検索中...',
+      searchingWindow: 'ウィンドウを検索中...',
       connecting: 'デバイスに接続中...',
+      connectingWindow: 'ウィンドウに接続中...',
       loadingResource: 'リソースを読み込み中...',
       deviceNotFound: 'デバイスが見つかりません: {{name}}',
       windowNotFound: 'ウィンドウが見つかりません: {{name}}',
@@ -265,6 +267,9 @@ export default {
     environment: '実行環境',
     envTauri: 'Tauri デスクトップ',
     envBrowser: 'ブラウザ',
+    pathInfo: 'パス情報',
+    cwd: '現在の作業ディレクトリ',
+    exeDir: '実行ファイルのディレクトリ',
     resetWindowSize: 'ウィンドウサイズをリセット',
     openConfigDir: '設定フォルダを開く',
     openLogDir: 'ログフォルダを開く',
@@ -281,6 +286,14 @@ export default {
   // ウェルカムダイアログ
   welcome: {
     dismiss: '了解しました',
+  },
+
+  // 新規ユーザーガイド
+  onboarding: {
+    title: 'ここから始めましょう',
+    message:
+      'まず「接続設定」でデバイスを選択してリソースを読み込み、その後タスクを実行できます。',
+    gotIt: '了解しました',
   },
 
   // インスタンス
@@ -523,5 +536,18 @@ export default {
       'インストールは完了しましたが、読み込みに失敗しました。コンピュータを再起動してから再試行してください。',
     restartHint: '問題が解決しない場合は、コンピュータを再起動してから再試行してください。',
     retry: '再試行',
+  },
+
+  // パス警告
+  badPath: {
+    title: 'プログラムの場所が正しくありません',
+    rootTitle: 'ディスクのルートに置かないでください！',
+    rootDescription:
+      'ドライブのルート（C:\\ や D:\\ など）から実行すると問題が発生する可能性があります。「D:\\MyApps\\」のようなフォルダに移動してください。',
+    tempTitle: 'アーカイブから直接実行したようです',
+    tempDescription:
+      'プログラムは一時フォルダから実行されています。閉じると消える可能性があります。まずアーカイブをフォルダに解凍してから、そこからプログラムを実行してください。',
+    hint: 'ヒント：「D:\\MaaXXX」のような専用フォルダに解凍することをお勧めします。管理しやすくするため、デスクトップやダウンロードフォルダは避けてください。',
+    exit: '終了',
   },
 };

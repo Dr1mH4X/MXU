@@ -68,7 +68,9 @@ export default {
     // 자동 연결 관련
     autoConnect: {
       searching: '기기 검색 중...',
+      searchingWindow: '창 검색 중...',
       connecting: '기기 연결 중...',
+      connectingWindow: '창 연결 중...',
       loadingResource: '리소스 로딩 중...',
       deviceNotFound: '기기를 찾을 수 없습니다: {{name}}',
       windowNotFound: '창을 찾을 수 없습니다: {{name}}',
@@ -259,6 +261,9 @@ export default {
     environment: '실행 환경',
     envTauri: 'Tauri 데스크톱',
     envBrowser: '브라우저',
+    pathInfo: '경로 정보',
+    cwd: '현재 작업 디렉토리',
+    exeDir: '실행 파일 디렉토리',
     resetWindowSize: '창 크기 초기화',
     openConfigDir: '설정 폴더 열기',
     openLogDir: '로그 폴더 열기',
@@ -275,6 +280,13 @@ export default {
   // 환영 대화상자
   welcome: {
     dismiss: '확인했습니다',
+  },
+
+  // 신규 사용자 가이드
+  onboarding: {
+    title: '여기서 시작하세요',
+    message: '먼저 "연결 설정"에서 기기를 선택하고 리소스를 로드하면 작업을 실행할 수 있습니다.',
+    gotIt: '알겠습니다',
   },
 
   // 인스턴스
@@ -515,5 +527,18 @@ export default {
       '설치가 완료되었지만 로드에 실패했습니다. 컴퓨터를 다시 시작한 후 다시 시도하세요.',
     restartHint: '문제가 지속되면 컴퓨터를 다시 시작한 후 다시 시도하세요.',
     retry: '다시 시도',
+  },
+
+  // 경로 경고
+  badPath: {
+    title: '프로그램 위치가 잘못되었습니다',
+    rootTitle: '디스크 루트에 프로그램을 두지 마세요!',
+    rootDescription:
+      '드라이브 루트(C:\\ 또는 D:\\ 등)에서 실행하면 문제가 발생할 수 있습니다. "D:\\MyApps\\"와 같은 폴더로 이동하세요.',
+    tempTitle: '압축 파일에서 직접 실행한 것 같습니다',
+    tempDescription:
+      '프로그램이 임시 폴더에서 실행 중입니다. 닫으면 사라질 수 있습니다. 먼저 압축 파일을 폴더에 풀고 거기서 프로그램을 실행하세요.',
+    hint: '팁: "D:\\MaaXXX"와 같은 전용 폴더에 압축을 푸는 것이 좋습니다. 관리하기 쉽도록 바탕화면이나 다운로드 폴더는 피하세요.',
+    exit: '종료',
   },
 };

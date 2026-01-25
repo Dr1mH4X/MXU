@@ -122,6 +122,8 @@ export function SettingsPage({ onClose }: SettingsPageProps) {
   const [mxuVersion, setMxuVersion] = useState<string | null>(null);
   const [maafwVersion, setMaafwVersion] = useState<string | null>(null);
   const [showCdk, setShowCdk] = useState(false);
+  const [exeDir, setExeDir] = useState<string | null>(null);
+  const [cwd, setCwd] = useState<string | null>(null);
 
   // 调试：添加日志（提前定义以便在 handleCdkChange 中使用）
   const addDebugLog = useCallback((msg: string) => {
@@ -340,6 +342,22 @@ export function SettingsPage({ onClose }: SettingsPageProps) {
         }
       } else {
         setMaafwVersion(null);
+      }
+
+      // 路径信息（仅在 Tauri 环境有意义）
+      if (isTauri()) {
+        try {
+          const { invoke } = await import('@tauri-apps/api/core');
+          const [exeDirResult, cwdResult] = await Promise.all([
+            invoke<string>('get_exe_dir'),
+            invoke<string>('get_cwd'),
+          ]);
+          setExeDir(exeDirResult);
+          setCwd(cwdResult);
+        } catch {
+          setExeDir(null);
+          setCwd(null);
+        }
       }
     };
 
@@ -1080,6 +1098,25 @@ export function SettingsPage({ onClose }: SettingsPageProps) {
                     </span>
                   </p>
                 </div>
+
+                {/* 路径信息（仅 Tauri 环境显示） */}
+                {isTauri() && (exeDir || cwd) && (
+                  <div className="text-sm text-text-secondary space-y-1">
+                    <p className="font-medium text-text-primary">{t('debug.pathInfo')}</p>
+                    {cwd && (
+                      <p className="break-all">
+                        {t('debug.cwd')}:{' '}
+                        <span className="font-mono text-text-primary text-xs">{cwd}</span>
+                      </p>
+                    )}
+                    {exeDir && (
+                      <p className="break-all">
+                        {t('debug.exeDir')}:{' '}
+                        <span className="font-mono text-text-primary text-xs">{exeDir}</span>
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 {/* 操作按钮 */}
                 <div className="flex flex-wrap gap-2">

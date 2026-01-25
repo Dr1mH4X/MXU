@@ -95,6 +95,7 @@ export interface AppSettings {
   rightPanelWidth?: number; // 右侧面板宽度
   rightPanelCollapsed?: boolean; // 右侧面板是否折叠
   devMode?: boolean; // 开发模式，启用后允许 F5 刷新 UI
+  onboardingCompleted?: boolean; // 新用户引导是否已完成
 }
 
 // MXU 配置文件完整结构

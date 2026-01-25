@@ -134,6 +134,8 @@ pub fn run() {
             maa_commands::read_local_file_base64,
             maa_commands::local_file_exists,
             maa_commands::get_exe_dir,
+            maa_commands::get_cwd,
+            maa_commands::check_exe_path,
             // 状态查询命令
             maa_commands::maa_get_instance_state,
             maa_commands::maa_get_all_states,

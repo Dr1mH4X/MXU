@@ -67,8 +67,10 @@ export default {
     stoppingTasks: 'Stopping...',
     // Auto connect
     autoConnect: {
-      searching: 'Searching...',
-      connecting: 'Connecting...',
+      searching: 'Searching devices...',
+      searchingWindow: 'Searching windows...',
+      connecting: 'Connecting device...',
+      connectingWindow: 'Connecting window...',
       loadingResource: 'Loading resource...',
       deviceNotFound: 'Device not found: {{name}}',
       windowNotFound: 'Window not found: {{name}}',
@@ -264,6 +266,9 @@ export default {
     environment: 'Environment',
     envTauri: 'Tauri Desktop',
     envBrowser: 'Browser',
+    pathInfo: 'Path Information',
+    cwd: 'Current Working Directory',
+    exeDir: 'Executable Directory',
     resetWindowSize: 'Reset Window Size',
     openConfigDir: 'Open Config Dir',
     openLogDir: 'Open Log Dir',
@@ -280,6 +285,14 @@ export default {
   // Welcome dialog
   welcome: {
     dismiss: 'Got it',
+  },
+
+  // Onboarding
+  onboarding: {
+    title: 'Start Here',
+    message:
+      'First, select a device and load resources in "Connection Settings", then you can start running tasks.',
+    gotIt: 'Got it',
   },
 
   // Instance
@@ -521,5 +534,18 @@ export default {
       'Installation complete, but loading still failed. Please restart your computer and try again.',
     restartHint: 'If the problem persists, please restart your computer and try again.',
     retry: 'Retry',
+  },
+
+  // Bad path warning
+  badPath: {
+    title: 'Wrong Location',
+    rootTitle: "Don't put the program in the disk root!",
+    rootDescription:
+      'Running from the root of a drive (like C:\\ or D:\\) can cause issues. Please move it to a folder, like "D:\\MyApps\\".',
+    tempTitle: 'Looks like you ran it directly from the archive',
+    tempDescription:
+      "The program is running from a temporary folder. It may disappear when closed. Please extract the archive to a folder first, then run the program from there.",
+    hint: 'Tip: We recommend extracting to a dedicated folder like "D:\\MaaXXX". Avoid Desktop or Downloads for easier management.',
+    exit: 'Exit',
   },
 };

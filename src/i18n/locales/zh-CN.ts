@@ -68,7 +68,9 @@ export default {
     // 自动连接相关
     autoConnect: {
       searching: '搜索设备...',
+      searchingWindow: '搜索窗口...',
       connecting: '连接设备...',
+      connectingWindow: '连接窗口...',
       loadingResource: '加载资源...',
       deviceNotFound: '未找到设备: {{name}}',
       windowNotFound: '未找到窗口: {{name}}',
@@ -263,6 +265,9 @@ export default {
     environment: '运行环境',
     envTauri: 'Tauri 桌面端',
     envBrowser: '浏览器',
+    pathInfo: '路径信息',
+    cwd: '当前工作目录',
+    exeDir: '程序所在目录',
     resetWindowSize: '重置窗口尺寸',
     openConfigDir: '打开配置目录',
     openLogDir: '打开日志目录',
@@ -278,6 +283,13 @@ export default {
   // 欢迎弹窗
   welcome: {
     dismiss: '我知道了',
+  },
+
+  // 新用户引导
+  onboarding: {
+    title: '从这里开始',
+    message: '首先在「连接设置」中选择设备并加载资源，然后就可以开始运行任务了。',
+    gotIt: '知道了',
   },
 
   // 实例
@@ -516,5 +528,18 @@ export default {
     stillFailed: '安装完成，但加载仍然失败。请重启电脑后再试。',
     restartHint: '如果问题仍然存在，请重启电脑后再试。',
     retry: '重试',
+  },
+
+  // 程序路径问题提示
+  badPath: {
+    title: '程序位置不对',
+    rootTitle: '别把程序放在磁盘根目录啦！',
+    rootDescription:
+      '程序放在 C盘、D盘 这种根目录下会出问题的。找个文件夹放进去再用吧，比如「D:\\MyApps\\」之类的。',
+    tempTitle: '你好像直接双击压缩包里的程序了',
+    tempDescription:
+      '程序现在在临时目录里跑着呢，一关掉可能就没了。先把压缩包解压到一个文件夹里，再打开里面的程序吧。',
+    hint: '小提示：建议解压到一个专门的文件夹，比如「D:\\MaaXXX」，别放桌面或者下载文件夹，那样更方便管理。',
+    exit: '退出程序',
   },
 };

@@ -94,6 +94,7 @@
         { "url": "https://objects.githubusercontent.com/**" }
       ]
     },
-    "process:allow-restart"
+    "process:allow-restart",
+    "process:allow-exit"
   ]
 }
