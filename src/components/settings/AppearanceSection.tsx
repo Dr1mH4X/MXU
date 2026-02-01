@@ -198,7 +198,7 @@ export function AppearanceSection({
                 className="flex items-center justify-center px-3 py-2 rounded-lg text-sm font-medium bg-bg-tertiary border-2 border-dashed border-border hover:bg-bg-hover text-text-muted transition-colors"
                 title={t('settings.addCustomAccent')}
               >
-                <span className="text-xl">+</span>
+                <span className="text-sm">+</span>
               </button>
             </div>
           </SortableContext>
